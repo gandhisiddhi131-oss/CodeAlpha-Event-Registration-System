@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Event Registration</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+padding:20px;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:10px;
+width:400px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+text-align:center;
+margin-bottom:20px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+
+button{
+padding:10px;
+width:100%;
+background:#4CAF50;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+.cancelBtn{
+background:red;
+margin-top:5px;
+}
+
+table{
+background:white;
+border-collapse:collapse;
+width:500px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+th,td{
+padding:10px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Event Registration</h2>
+
+<input type="text" id="name" placeholder="Enter Name">
+
+<input type="email" id="email" placeholder="Enter Email">
+
+<select id="events"></select>
+
+<button onclick="register()">Register</button>
+
+<p id="message"></p>
+
+</div>
+
+<h2>Registered Users</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Event</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="registrationTable"></tbody>
+
+</table>
+
+<script>
+
+async function loadEvents(){
+
+const res = await fetch("/events")
+const data = await res.json()
+
+const dropdown = document.getElementById("events")
+
+data.forEach(event=>{
+const option=document.createElement("option")
+option.value=event.id
+option.text=event.event_name
+dropdown.appendChild(option)
+})
+
+}
+
+async function register(){
+
+const name=document.getElementById("name").value
+const email=document.getElementById("email").value
+const event_id=document.getElementById("events").value
+
+const res = await fetch("/register",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({name,email,event_id})
+})
+
+const data = await res.json()
+
+document.getElementById("message").innerText=data.message
+
+loadRegistrations()
+
+}
+
+async function loadRegistrations(){
+
+const res = await fetch("/registrations")
+const data = await res.json()
+
+const table=document.getElementById("registrationTable")
+table.innerHTML=""
+
+data.forEach(reg=>{
+
+table.innerHTML += `
+<tr>
+<td>${reg.name}</td>
+<td>${reg.email}</td>
+<td>${reg.event_name}</td>
+<td>
+<button class="cancelBtn" onclick="cancelRegistration(${reg.id})">Cancel</button>
+</td>
+</tr>
+`
+
+})
+
+}
+
+async function cancelRegistration(id){
+
+await fetch(`/registration/${id}`,{
+method:"DELETE"
+})
+
+loadRegistrations()
+
+}
+
+loadEvents()
+loadRegistrations()
+
+</script>
+
+</body>
+</html>
