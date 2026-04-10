@@ -37,5 +37,8 @@ http://localhost:3000
 - Database integration
 - CRUD operations
 - Backend logic building
+## 📸 Project Preview
+![Screenshot1](img1e.png)
+![Screenshot2](img2e.png)
 ## Author
 Siddhi Gandhi
